@@ -149,29 +149,26 @@ public class SpawnCommand implements CommandExecutor {
     }
 
     private void performRandomTeleportation(List<Player> players, List<Location> spawnPoints) {
-        List<Location> shuffledSpawns = new ArrayList<>(spawnPoints);
-        Collections.shuffle(shuffledSpawns); // Второе перемешивание точек
+        List<Location> availableSpawns = new ArrayList<>(spawnPoints);
+        Collections.shuffle(availableSpawns); // Перемешиваем точки спавна
 
-        List<Player> shuffledPlayers = new ArrayList<>(players);
-        Collections.shuffle(shuffledPlayers); // Третье перемешивание игроков
-
-        for (int i = 0; i < shuffledPlayers.size(); i++) {
-            Player player = shuffledPlayers.get(i);
-            if (i < shuffledSpawns.size()) {
-                Location spawn = shuffledSpawns.get(i);
-                player.teleportAsync(spawn).thenRun(() -> {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            player.removePotionEffect(PotionEffectType.BLINDNESS);
-                            player.sendMessage(ChatColor.GREEN + "Вы телепортированы на случайную точку!");
-                        }
-                    }.runTaskLater(plugin, 20L);
-                });
-            } else {
-                player.sendMessage(ChatColor.RED + "Ошибка телепортации!");
+        for (Player player : players) {
+            if (availableSpawns.isEmpty()) {
+                player.sendMessage(ChatColor.RED + "Ошибка телепортации: не осталось свободных точек спавна!");
                 plugin.getLogger().warning("Недостаточно точек для игрока " + player.getName());
+                continue;
             }
+
+            Location spawn = availableSpawns.remove(0); // Берем первую доступную точку и удаляем ее из списка
+            player.teleportAsync(spawn).thenRun(() -> {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.removePotionEffect(PotionEffectType.BLINDNESS);
+                        player.sendMessage(ChatColor.GREEN + "Вы телепортированы на случайную точку!");
+                    }
+                }.runTaskLater(plugin, 20L);
+            });
         }
         startLootingTimer();
     }
