@@ -1,0 +1,20 @@
+name: KrEvent2
+version: 1.0
+main: kurwi.krevent2.MainPlugin
+api-version: 1.20
+commands:
+  startgame:
+    description: Start the game
+    usage: /startgame
+    permission: krevent.admin
+  stopgame:
+    description: Stop the game
+    usage: /stopgame
+    permission: krevent.admin
+  addspawn:
+    description: Добавляет точку телепортации для игрока
+    usage: /addspawn
+    permission: krevent.admin
+permissions:
+  krevent.admin:
+    default: op
